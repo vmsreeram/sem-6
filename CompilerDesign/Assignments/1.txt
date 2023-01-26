@@ -1,0 +1,10 @@
+C		3g	imperative
+C++		3g	obj-orintd
+Cobol
+Fortran		3g
+Java		3g	obj-orintd
+Lisp
+OCaml			functional
+Pearl
+Python
+VB
