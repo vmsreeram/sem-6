@@ -39,4 +39,4 @@ def visualiseStrApprox(upto):
     axis[1].legend()
     plt.show()
 
-visualiseStrApprox(100)
+visualiseStrApprox(1000000)

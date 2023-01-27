@@ -18,9 +18,9 @@ class Dice:
         
     def setProb(self, prob_tuple):
         if len(prob_tuple) != self.numSides:
-            raise Exception("Invalid probability distribution: Tuple should have exactly {} elements".format(self.numSides))
+            raise Exception("Invalid probability distribution : Tuple should have exactly {} elements".format(self.numSides))
         if abs(sum(prob_tuple) - 1) > 1e-6:
-            raise Exception("Invalid probability distribution: Sum is not equal to 1")
+            raise Exception("Invalid probability distribution : Sum is not equal to 1")
         self.prob = prob_tuple
         self.cdf = [self.prob[0]]
         for i in range(1,self.numSides):
