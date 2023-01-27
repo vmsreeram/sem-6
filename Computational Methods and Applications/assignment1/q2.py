@@ -11,7 +11,10 @@ class Dice:
             raise Exception("Cannot construct the dice : Number of sides should be an integer greater than or equal to 4")
         numSides=int(numSides)
         self.numSides = numSides
-        self.prob = [1/numSides for i in range(numSides)]
+        self.prob = [1/numSides for _ in range(numSides)]
+        self.cdf = [self.prob[0]]
+        for i in range(1,numSides):
+            self.cdf.append(round(self.cdf[-1]+self.prob[i],6))
         
     def setProb(self, prob_tuple):
         if len(prob_tuple) != self.numSides:
@@ -19,6 +22,9 @@ class Dice:
         if abs(sum(prob_tuple) - 1) > 1e-6:
             raise Exception("Invalid probability distribution: Sum is not equal to 1")
         self.prob = prob_tuple
+        self.cdf = [self.prob[0]]
+        for i in range(1,self.numSides):
+            self.cdf.append(round(self.cdf[-1]+self.prob[i],6))
         
     def __str__(self):
         ans="Dice with {} sides with probability distribution {{".format(self.numSides)
@@ -30,7 +36,16 @@ class Dice:
         return ans
     
     def roll(self, n):
-        outcome = [random.choices(range(self.numSides), self.prob, k=n).count(i) for i in range(self.numSides)]
+        outcome = [0 for _ in range(self.numSides)]
+        for _ in range(n):
+            cur = random.random()
+            ans = 0
+            for i in self.cdf:
+                if i > cur:
+                    break
+                ans+=1
+            outcome[ans]+=1
+            
         expected_outcome = [n*p for p in self.prob]
         print("outcome =",outcome)
         print("expected_outcome =",expected_outcome)
@@ -44,7 +59,7 @@ class Dice:
         plt.legend()
         plt.show()
 
-d = Dice(5.0)
-# d.setProb((0.1, 0.2, 0.1, 0.4,0.1))
+d = Dice(4)
+# d.setProb((0.1, 0.2, 0.1, 0.4,0.2))
 print(d)
-d.roll(10000)
+d.roll(100)
