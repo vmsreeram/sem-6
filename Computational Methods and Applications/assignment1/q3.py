@@ -33,7 +33,7 @@ def estimatePi(n):
     plt.ylim(3.10,3.20)
     plt.grid(color='grey', linestyle='--')
     plt.xlabel('No. of points generated')
-    plt.ylabel('4 x fraction of points within the circle')
+    plt.ylabel('4 × fraction of points within the circle')
     plt.title('Estimating π using Monte Carlo Method')
     plt.legend(loc='lower right')
 

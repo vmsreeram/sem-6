@@ -18,7 +18,7 @@ def visualiseStrApprox(upto):
     for i in range(1,upto+1):
         RelErr.append(abs(np.exp(logStirN[i-1]-logFactN[i-1])-1))
         
-    figure, axis = plt.subplots(2)
+    fig, axis = plt.subplots(1,2, figsize=(15,5))
 
     # axis[0].set_title('relative error plot')
     # axis[0].set_xlabel('n')
@@ -31,12 +31,12 @@ def visualiseStrApprox(upto):
     axis[0].plot([i for i in range(len(RelErr))],[i*100 for i in RelErr])
 
 
-    axis[1].plot([i for i in range(len(RelErr))],logFactN,color='b',label='logFactN')
-    axis[1].plot([i for i in range(len(RelErr))],logStirN,color='r',label='logStirN')
+    axis[1].plot([i for i in range(len(RelErr))],logStirN,color='r',label='logStirN', linestyle = '-')
+    axis[1].plot([i for i in range(len(RelErr))],logFactN,color='b',label='logFactN', linestyle = ':')
     axis[1].set_title('log plot')
     axis[1].set_xlabel('n')
     axis[1].set_ylabel('log factorial (n)')
     axis[1].legend()
     plt.show()
 
-visualiseStrApprox(1000000)
+visualiseStrApprox(10000)
