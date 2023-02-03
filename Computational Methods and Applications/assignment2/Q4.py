@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import random
 import math
+import tqdm
 
 class UndirectedGraph:
     def __init__(self, n=None):
@@ -133,7 +134,8 @@ def verify_er_one_two_connectivity():
     n=1000
     y_lar = []
     y_2nd = []
-    for p in [i*0.0001 for i in range(0,90)]:
+    X = [i*0.0001 for i in range(0,90)]
+    for p in tqdm.tqdm(X):
         sumresults_lar = 0
         sumresults_2nd = 0
         for _ in range(50):
@@ -145,15 +147,16 @@ def verify_er_one_two_connectivity():
         y_lar.append(sumresults_lar / 50)
         y_2nd.append(sumresults_2nd / 50)
     
-    plt.plot([i*0.0001 for i in range(0,90)],y_lar,c='g',label='Largest connected component')
-    plt.plot([i*0.0001 for i in range(0,90)],y_2nd,c='b',label='2nd largest connected component')
+    plt.plot(X,y_lar,c='g',label='Largest connected component')
+    plt.plot(X,y_2nd,c='b',label='2nd largest connected component')
     plt.axvline(x=1/n,color='r',label='Largest CC size threshold')
-    plt.axvline(x=math.log(n)/n,color='y',label='Connectedness threshold')
+    plt.axvline(x=math.log(n)/n,color='orange',label='Connectedness threshold')
     plt.xlabel('p',style='italic')
     plt.title('Fraction of nodes in the largest and second-largest\nconnected components (CC) of G({}, p) as function of p'.format(n))
     plt.ylabel('fraction of nodes'.format(n))
     plt.grid()
     plt.legend()
     plt.show()
+    # plt.savefig('.Q4_2.png')
 
 verify_er_one_two_connectivity()

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import random
 import math
+import tqdm
 
 class UndirectedGraph:
     def __init__(self, n=None):
@@ -100,14 +101,15 @@ class ERRandomGraph(UndirectedGraph):
 
 def verify_er_connectivity(n):
     y = []
-    for p in [i/n for i in range(1,100)]:
+    X = [i/1000 for i in range(100)]
+    for p in tqdm.tqdm(X):
         sumresults = 0
         for i in range(1000):
             g = ERRandomGraph(n)
             g.sample(p)
             sumresults+=(g.isConnected())
         y.append(sumresults / 1000)
-    plt.plot([i/n for i in range(1,100)],y,c='b')
+    plt.plot(X,y,c='b')
     plt.axvline(x=math.log(n)/n,color='r',label='Theoretical threshold')
     plt.xlabel('p',style='italic')
     plt.ylabel('fraction of runs G({}, p) is connected'.format(n))
