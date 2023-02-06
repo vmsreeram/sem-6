@@ -4,8 +4,8 @@ class UndirectedGraph:
         self.n = n
         self.adj_list = {}
         if n:
-            for i in range(1, n+1):
-                self.adj_list[i] = []
+            for i in range(n):
+                self.adj_list[i+1] = []
 
     def addNode(self, node):
         if (type(node)!=int) or (node<=0):
@@ -28,6 +28,8 @@ class UndirectedGraph:
         elif type(other) == int:
             self.addNode(other)
             return self
+        else:
+            raise TypeError('Expected tuple or integer')
 
     def __str__(self):
         edges = 0
@@ -70,4 +72,5 @@ class UndirectedGraph:
         plt.show()
 
 g = UndirectedGraph()
+g.plotDegDist()
 print(g)

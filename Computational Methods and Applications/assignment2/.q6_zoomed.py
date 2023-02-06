@@ -62,7 +62,8 @@ class Lattice:
         plt.show()
 
 def verifyPathStmnt():
-    X = [i*0.01 for i in range(0,100)]
+    X = [i*0.002 for i in range(200,300)]
+    print(X)
     Y = []
     for p in tqdm.tqdm(X):
         count = 0
@@ -74,11 +75,11 @@ def verifyPathStmnt():
         Y.append(count/50)
     
     plt.plot(X,Y,c='b')
-    plt.title('Critical cut-off in 2-D bond percolation')
+    plt.title('Critical cut-off in 2-D bond percolation:ZOOMED')
     plt.xlabel('p')
     plt.ylabel('Fraction of runs end-to-end percolation occurred')
     plt.grid()
-    plt.savefig('.Q6.png')
+    plt.savefig('.Q6_zoomed.png')
     plt.show()
 
 verifyPathStmnt()
