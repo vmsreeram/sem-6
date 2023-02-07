@@ -101,7 +101,7 @@ class ERRandomGraph(UndirectedGraph):
 
 def verify_er_connectivity(n):
     y = []
-    X = [i/1000 for i in range(100)]
+    X = [i/1000 for i in range(101)]            # so that i runs from 0 to 100
     for p in tqdm.tqdm(X):
         sumresults = 0
         for i in range(1000):
@@ -115,8 +115,10 @@ def verify_er_connectivity(n):
     plt.ylabel('fraction of runs G({}, p) is connected'.format(n))
     plt.title('Connectedness of a G({}, p) as function of p'.format(n))
     plt.grid()
+    plt.ylim(0,1)
     plt.legend()
-    plt.show()
+    # plt.show()
+    plt.savefig('.Q3_2.png')
 
 verify_er_connectivity(100)
 
