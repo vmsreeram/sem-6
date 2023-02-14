@@ -1,4 +1,6 @@
 import numpy as np
+import random
+import matplotlib.pyplot as plt
 
 class RowVectorFloat:
     def __init__(self, data=None):
@@ -154,11 +156,23 @@ class SquareMatrixFloat:
         
         return errors,x_curr
 
-s = SquareMatrixFloat(4)
-s.sampleSymmetric()
-(e, x) = s.gsSolve([1, 2, 3, 4], 10)
-print(x)
-print(e)
-(e1, x1) = s.jSolve([1, 2, 3, 4], 10)
-print(x1)
-print(e1)
+def visualisejSgsS(n:int,m:int):
+    # print("findS...")
+    s = SquareMatrixFloat(n)
+    s.sampleSymmetric()
+    while (not s.isDRDominant(strict=True)):
+        s.sampleSymmetric()
+    # print("foundS..")
+    b = [random.randrange(1,n+1)]*n
+    jSerr,_ = s.jSolve(b,m)
+    gsSerr,_ = s.gsSolve(b,m)
+    plt.plot([i+1 for i in range(m)],jSerr,label='Jacobi error')
+    plt.plot([i+1 for i in range(m)],gsSerr,label='Gauss-Siedel error')
+    plt.title('Errors in Jacobi and Gauss-Siedel methods')
+    plt.xlabel(r'$x$')
+    plt.ylabel(r'$\epsilon$')
+    plt.legend()
+    plt.grid()
+    plt.show()
+    
+visualisejSgsS(n=8,m=20)
