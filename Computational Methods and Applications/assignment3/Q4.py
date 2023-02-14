@@ -102,7 +102,11 @@ class Polynomial:
         if len(s)==initLen:
             s+=r'$0$'
         return s
-
+    
+    def __round_vals(self):
+        for i in range(self.n):
+            self.data[i]=round(self.data[i],4)
+            
     def show(self,a,b):
         __n_samples = 101
         x = [a+(i*(b-a)/(__n_samples-1)) for i in range(__n_samples)]
@@ -137,18 +141,16 @@ class Polynomial:
             b.append(y)
             xpts.append(x)
             ypts.append(y)
-            x_min,x_max=min(x_min,x),max(x_max,x)
+            x_min,x_max=min(x_min,x),max(x_max,x)        
         
-        matmethod_poly_coeff = list(linalg.solve(A,b))
+        matmethod_poly=Polynomial(list(linalg.solve(A,b)))
         
-        for i in range(len(matmethod_poly_coeff)):
-            matmethod_poly_coeff[i] = round(matmethod_poly_coeff[i],4)
-        matmethod_poly=Polynomial(matmethod_poly_coeff)
+        matmethod_poly.__round_vals()
         
         # print(matmethod_poly_coef)
         # print(x_min,x_max)
         plt.scatter(xpts,ypts,c='r')
-        x_vals = [x/100 for x in range(100*x_min, 100*x_max)]
+        x_vals = [x/100 for x in range(100*x_min, 1+100*x_max)]
         y_vals = [matmethod_poly[x] for x in x_vals]
         plt.plot(x_vals, y_vals,c='b')
         plt.grid()
@@ -173,6 +175,24 @@ class Polynomial:
             x_min,x_max=min(x_min,x),max(x_max,x)
         
         lagrange_poly = Polynomial([0])
+        for i in range(len(points)):
+            nr,dr = Polynomial([1]),1
+            for j in range(len(points)):
+                if i!=j:
+                    nr *= Polynomial([-xpts[j],1])
+                    dr *= xpts[i]-xpts[j]
+            lagrange_poly += (ypts[i]/dr)*nr
+        lagrange_poly.__round_vals()
+        
+        plt.scatter(xpts,ypts,c='r')
+        x_vals = [x/100 for x in range(100*x_min, 1+100*x_max)]
+        y_vals = [lagrange_poly[x] for x in x_vals]
+        plt.plot(x_vals, y_vals,c='b')
+        plt.grid()
+        plt.title('Polynomial interpolation using matrix method\nwhere '+r'$\tilde{f}(x)=$'+lagrange_poly.__title())
+        plt.xlabel(r'$x$')
+        plt.ylabel(r'$\tilde{f}(x)$')
+        plt.show()
         
         
         
@@ -184,8 +204,14 @@ class Polynomial:
 # p3 = p2 * p1
 # print(p3)
 # p = Polynomial([1, 2, 3])
-p = Polynomial([1,-1,-0.2,0,2])
-p.show(-2, 2)
+# p = Polynomial([1,-1,-0.2,0,2])
+# p.show(-2, 2)
 
 p = Polynomial([])
+p.fitViaLagrangePoly([(1,4), (0,1), (-1, 0), (2, 15), (3,12)])
 p.fitViaMatrixMethod([(1,4), (0,1), (-1, 0), (2, 15), (3,12)])
+
+
+p = Polynomial([])
+p.fitViaLagrangePoly([(1,-4), (0,1), (-1, 4), (2, 4),  (3,1)])
+p.fitViaMatrixMethod([(1,-4), (0,1), (-1, 4), (2, 4),  (3,1)])
