@@ -11,20 +11,19 @@ class RowVectorFloat:
         for val in data:
             if type(val)!=int and type(val)!=float:
                 raise TypeError("Invalid argument: Expected list of only numbers, found an element of type "+str(type(val)))
-        # Handle more than 1 argument
-        self.data = data
+        self.__data = data
 
     def __repr__(self):
-        return ' '.join(map(str, self.data))
+        return ' '.join(map(str, self.__data))
 
     def __len__(self):
-        return len(self.data)
+        return len(self.__data)
 
     def __getitem__(self, index):
-        return self.data[index]
+        return self.__data[index]
 
     def __setitem__(self, index, value):
-        self.data[index] = value
+        self.__data[index] = value
 
     def __add__(self, other):
         if len(self) != len(other):
@@ -33,7 +32,7 @@ class RowVectorFloat:
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):
-            return RowVectorFloat([value * other for value in self.data])
+            return RowVectorFloat([value * other for value in self.__data])
         raise ValueError("Invalid type for multiplication")
 
     def __rmul__(self, other):
@@ -41,66 +40,65 @@ class RowVectorFloat:
 
 class SquareMatrixFloat:
     def __init__(self,x:int):
-        self.size = x
-        self.data = [RowVectorFloat([0 for _ in range(x)]) for i in range(x)]
+        self.__size = x
+        self.__data = [RowVectorFloat([0 for _ in range(x)]) for i in range(x)]
     
     def __repr__(self):
         ans = 'The matrix is:\n'
-        for i in range(self.size):
-            for j in range(self.size):
-                # ans+=str('%.2f' % self.data[i][j])+'\t'
-                ans+=str('%.2f' % abs(self.data[i][j]) if self.data[i][j] == 0 else '%.2f' % self.data[i][j])+'\t'
+        for i in range(self.__size):
+            for j in range(self.__size):
+                ans+='%.2f\t' % abs(self.__data[i][j]) if ('%.2f' % self.__data[i][j] == '-0.00') else '%.2f\t' % (self.__data[i][j])
             ans+='\n'
         return ans
 
-    def __setitem__(self, index, value):
-        self.data[index] = value
+    # # should not be exposed to user, wrote for debugging purposes
+    # def __setitem__(self, index, value):
+    #     self.__data[index] = value
 
     def sampleSymmetric(self):
-        for i in range(self.size):
-            for j in range(i,self.size):
+        for i in range(self.__size):
+            for j in range(i,self.__size):
                 if j==i:
-                    self.data[i][i]=np.random.uniform(0,self.size)
+                    self.__data[i][i]=np.random.uniform(0,self.__size)
                 else:
-                    self.data[i][j]=self.data[j][i]=np.random.uniform(0,1)
+                    self.__data[i][j]=self.__data[j][i]=np.random.uniform(0,1)
     
     def toRowEchelonForm(self):
         # check cases of div by 0
-        for i in range(self.size):
+        for i in range(self.__size):
             # print("i =",i)
-            for j in range(i,self.size):
-                self.data[j]=(self.data[j])*(1/self.data[j][i])
+            for j in range(i,self.__size):
+                self.__data[j]=(self.__data[j])*(1/self.__data[j][i])
                 if(j>i):
-                    self.data[j]=self.data[j]+(-1*self.data[i])
-                # for jj in range(self.size):
-                    # if(self.data[j][jj]==-0.00):
-                    #     self.data[j][jj]=0.00
+                    self.__data[j]=self.__data[j]+(-1*self.__data[i])
+                # for jj in range(self.__size):
+                    # if(self.__data[j][jj]==-0.00):
+                    #     self.__data[j][jj]=0.00
             # print(self)
     
     def isDRDominant(self,strict=False):
-        for i in range(self.size):
+        for i in range(self.__size):
             cur=0
             flag=False
-            for j in range(self.size):
-                cur+=abs(self.data[i][j])
-            if 2*abs(self.data[i][i])<cur:
+            for j in range(self.__size):
+                cur+=abs(self.__data[i][j])
+            if 2*abs(self.__data[i][i])<cur:
                 return False
-            if 2*abs(self.data[i][i])>cur:
+            if 2*abs(self.__data[i][i])>cur:
                 flag = True
         if strict:
             return (True and flag)
         return True
     
     
-    ## TODO 1: implement jSolve
     def jSolve(self, b,m):
         if not self.isDRDominant(strict=True):
             raise Exception('Not solving because convergence is not guranteed.')
-        if len(b)!=self.size:
+        if len(b)!=self.__size:
             raise Exception('Not solving because b is not valid.')
         
         def __compute_error(A,x,b):
-            n = self.size
+            n = self.__size
             ans=[]
             for i in range(n):
                 cur=0
@@ -109,27 +107,26 @@ class SquareMatrixFloat:
                 ans.append(cur-b[i])
             return np.linalg.norm(ans,ord=2)
         errors=[]
-        x_prev = [0]*self.size
-        x_curr = [0]*self.size
+        x_prev = [0]*self.__size
+        x_curr = [0]*self.__size
         for _ in range(m):
-            for i in range(self.size):
+            for i in range(self.__size):
                 val=0
-                for j in range(self.size):
+                for j in range(self.__size):
                     if j==i:
                         continue
-                    val+=self.data[i][j]*x_prev[j]
-                x_curr[i]=(1/self.data[i][i])*(b[i]-val)
+                    val+=self.__data[i][j]*x_prev[j]
+                x_curr[i]=(1/self.__data[i][i])*(b[i]-val)
             x_prev = x_curr
-            errors.append(__compute_error(self.data,x_curr,b))
+            errors.append(__compute_error(self.__data,x_curr,b))
         return errors,x_curr
     
-    ## TODO 2: implement gsSolve
     def gsSolve(self, b,m):
-        if len(b)!=self.size:
+        if len(b)!=self.__size:
             raise Exception('Not solving because b is not valid.')
         
         def __compute_error(A,x,b):
-            n = self.size
+            n = self.__size
             ans=[]
             for i in range(n):
                 cur=0
@@ -138,41 +135,41 @@ class SquareMatrixFloat:
                 ans.append(cur-b[i])
             return np.linalg.norm(ans,ord=2)
         errors=[]
-        x_prev = [0]*self.size
-        x_curr = [0]*self.size
+        x_prev = [0]*self.__size
+        x_curr = [0]*self.__size
         
         for _ in range(m):
-            for i in range(self.size):
+            for i in range(self.__size):
                 val=0
-                for j in range(self.size):
+                for j in range(self.__size):
                     if i<j:
-                        val+=self.data[i][j]*x_prev[j]
+                        val+=self.__data[i][j]*x_prev[j]
                     elif i>j:
-                        val+=self.data[i][j]*x_curr[j]
+                        val+=self.__data[i][j]*x_curr[j]
                         
-                x_curr[i]=(1/self.data[i][i])*(b[i]-val)
+                x_curr[i]=(1/self.__data[i][i])*(b[i]-val)
             x_prev = x_curr
-            errors.append(__compute_error(self.data,x_curr,b))
+            errors.append(__compute_error(self.__data,x_curr,b))
         
         return errors,x_curr
 
-def visualisejSgsS(n:int,m:int):
+def visualisejSgsS(n:int,m:int):                                            # n: dimension on SquareMatrixFloat; m: number of iterations
     # print("findS...")
     s = SquareMatrixFloat(n)
     s.sampleSymmetric()
-    while (not s.isDRDominant(strict=True)):
+    while (not s.isDRDominant(strict=True)):                                # keep on sampling until strictly diagonally dominant SquareMatrixFloat is obtained
         s.sampleSymmetric()
     # print("foundS..")
-    b = [random.randrange(1,n+1)]*n
-    jSerr,_ = s.jSolve(b,m)
+    b = [random.randrange(1,n+1)]*n                                         # b is chosen from random integers from 1 to n
+    jSerr,_ = s.jSolve(b,m)                                                 # call the implemented functions and plot the output
     gsSerr,_ = s.gsSolve(b,m)
     plt.plot([i+1 for i in range(m)],jSerr,label='Jacobi error')
     plt.plot([i+1 for i in range(m)],gsSerr,label='Gauss-Siedel error')
-    plt.title('Errors in Jacobi and Gauss-Siedel methods')
-    plt.xlabel(r'$x$')
+    plt.title(r'Errors $(\epsilon)$ in Jacobi and Gauss-Siedel methods')
+    plt.xlabel('Number of iterations')
     plt.ylabel(r'$\epsilon$')
     plt.legend()
     plt.grid()
     plt.show()
     
-visualisejSgsS(n=8,m=20)
+visualisejSgsS(n=10,m=15)   # n: dimension on SquareMatrixFloat; m: number of iterations

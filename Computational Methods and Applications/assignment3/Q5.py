@@ -1,17 +1,16 @@
 import numpy as np
-from scipy.interpolate import interp1d, CubicSpline, Akima1DInterpolator, BarycentricInterpolator
+from scipy.interpolate import CubicSpline, Akima1DInterpolator, BarycentricInterpolator
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-# Define the function to be interpolated
+# We can change the function at one place for ease of testing
 def f(x):
     return np.tan(x)*np.sin(30*x)*np.exp(x)
 
-# Define the number of sampling points for the interpolation
+# Number of sampling points for the interpolation: We can change it at one place for ease of testing
 num_points = [i for i in range(2,36)]
 
 
-# Define the interpolation functions
 interpolation_functions = [
                             CubicSpline
                            , Akima1DInterpolator
@@ -31,42 +30,40 @@ interpolation_colors = [
 
 # Set up the plot
 fig, ax = plt.subplots()
-ax.set_xlim(0, 1.0)
-ax.set_ylim(-4.0, 4.0)
 
-
-# Define the update function for the animation
+# Update function used for the animation, here `frame` is the index of the number of time this was called
 def update(frame):
     ax.clear()
     # ax.set_xlim(0, 1.0)
     ax.set_ylim(-4.0, 4.0)
 
+    # number of points to sample in current iteration/call of the update fn
     num = num_points[frame]
-    ax.set_title(r'Different interpolations for $tan(x) \cdot sin(30x) \cdot e^x$'+ ' for {} samples'.format(num))
-    ax.set_xlabel(r'$x$')
-    ax.set_ylabel(r'$f(x)$')
-    ax.grid()
     
+    # Plot the true function, sampling 500 points so that curve looks smooth
     x = np.linspace(0, 1.0, 500)
     y = f(x)
     ax.plot(x, y, label='True')
     
-    # Generate the data for the plot for the current frame
+    # Generate the data for the plot for the current iteration/call of the update fn
     x = np.linspace(0, 1.0, num)
     y = f(x)
 
 
     # Plot the different interpolation functions
     for i, fn in enumerate(interpolation_functions):
-        f_int = fn(x, y)
-        x1=np.linspace(0, 1.0, 500)
+        f_int = fn(x, y)                                    # now f_int willbe interpolated function
+        x1=np.linspace(0, 1.0, 500)                         # sampling 500 points so that curve looks smooth
         ax.plot(x1, f_int(x1), label=interpolation_names[i], c=interpolation_colors[i])
 
-    # Add the legend
+    # Add the legend, set graph title, labels, add grid
     ax.legend(loc='upper left')
+    ax.set_title(r'Different interpolations for $tan(x) \cdot sin(30x) \cdot e^x$'+ ' for {} samples'.format(num))
+    ax.set_xlabel(r'$x$')
+    ax.set_ylabel(r'$f(x)$')
+    ax.grid()
 
-# Generate the initial data for the plot
 
-# Create and save the animation
+# Create and open the animation
 anim = FuncAnimation(fig, update, frames=len(num_points), repeat=False)
-anim.save('interpolation_animation.gif', writer='pillow')
+plt.show()
