@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from numpy import float64
 from numpy import linalg
 
@@ -129,12 +130,12 @@ class Polynomial:
         plt.show()
     
     
-    def fitViaMatrixMethod(self, points):
+    def fitViaMatrixMethod(self, points, dontPlot=False):
         # handling invalid cases
         if type(points) is not list:
             raise Exception('Invalid input : expected list')
         for point in points:
-            if len(point)!=2 or (type(point[0])is not int and type(point[0])is not float) or (type(point[1])is not int and type(point[1])is not float):
+            if len(point)!=2 or (type(point[0])is not int and type(point[0])is not float and type(point[0])is not float64) or (type(point[1])is not int and type(point[1])is not float and type(point[1])is not float64):
                 raise Exception('Invalid input : list elements should be length-2 tuples of numbers')
         
         # finding values of A,b (usual meanings, as in slide)
@@ -154,6 +155,10 @@ class Polynomial:
         
         matmethod_poly.__round_vals()                           # rounding so that it does not look ugly while printing in plot
         
+        if dontPlot:
+            return matmethod_poly
+        
+        
         # plotting ...
         # print(matmethod_poly_coef)
         # print(x_min,x_max)
@@ -167,12 +172,12 @@ class Polynomial:
         plt.ylabel(r'$f(x)$')
         plt.show()
         
-    def fitViaLagrangePoly(self, points):
+    def fitViaLagrangePoly(self, points, dontPlot=False):
         # handling invalid cases
         if type(points) is not list:
             raise Exception('Invalid input : expected list')
         for point in points:
-            if len(point)!=2 or (type(point[0])is not int and type(point[0])is not float) or (type(point[1])is not int and type(point[1])is not float):
+            if len(point)!=2 or (type(point[0])is not int and type(point[0])is not float and type(point[0])is not float64) or (type(point[1])is not int and type(point[1])is not float and type(point[1])is not float64):
                 raise Exception('Invalid input : list elements should be length-2 tuples of numbers')
         
         xpts = []
@@ -194,6 +199,9 @@ class Polynomial:
             lagrange_poly += (ypts[i]/dr)*nr
         lagrange_poly.__round_vals()
         
+        if dontPlot:
+            return lagrange_poly
+        
         # plotting ...
         plt.scatter(xpts,ypts,c='r')
         x_vals = [x/100 for x in range(100*x_min, 1+100*x_max)]
@@ -204,25 +212,33 @@ class Polynomial:
         plt.xlabel(r'$x$')
         plt.ylabel(r'$\tilde{f}(x)$')
         plt.show()
-        
-        
-        
-# p = Polynomial([])
-# p.fitViaLagrangePoly([(1,-4), (0,1), (-1, 4), (2, 4),  (3,1)])
-            
-# p1 = Polynomial([1,2])
-# p2 = Polynomial([1, 1, 1,5.2,25,.346,3])
-# p3 = p2 * p1
-# print(p3)
-# p = Polynomial([1, 2, 3])
-p = Polynomial([0,2,-1.2,0])
-p.show(-2, 2)
+    
+    def derivative(self):
+        lst = []
+        for i,val in enumerate(self.__data[1:]):
+            lst.append((i+1)*val)
+        return Polynomial(lst)
+    
+    def area(self,start,stop, retValOnly=False):
+        lst = [0]
+        for i,val in enumerate(self.__data):
+            lst.append(val/(i+1))
+        ans = abs(Polynomial(lst)[stop]-Polynomial(lst)[start])
+        if retValOnly:
+            return ans
+        return 'Area in the interval ['+str(start)+', '+str(stop)+'] is: '+str(ans)
 
-# p = Polynomial([])
-# p.fitViaLagrangePoly([(1,4), (0,1), (-1, 0), (2, 15), (3,12)])
-# p.fitViaMatrixMethod([(1,4), (0,1), (-1, 0), (2, 15), (3,12)])
+def fn(x):
+    return np.exp(x) * np.sin(x)
 
+points = []
+NUM_POINTS = 10     #error = 4.227752883889657e-07
+for x in [(i+1)/(NUM_POINTS*2) for i in range(NUM_POINTS)]:
+    points.append((x,fn(x)))
+# print(points)
 
-# p = Polynomial([])
-# p.fitViaLagrangePoly([(1,-4), (0,1), (-1, 4), (2, 4),  (3,1)])
-# p.fitViaMatrixMethod([(1,-4), (0,1), (-1, 4), (2, 4),  (3,1)])
+approx = Polynomial([]).fitViaMatrixMethod(points,dontPlot=True)
+# print("approx =",approx)
+# approx.show(0,0.5)
+print(approx.area(0,0.5))
+print("error =",abs(0.1717750233147229-approx.area(0,0.5,retValOnly=True)))

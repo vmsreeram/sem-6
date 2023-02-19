@@ -87,15 +87,15 @@ class SquareMatrixFloat:
             return (True and flag)                                                  # if we are interested in finding strict dominance,we return True if flag is True
         return True                                                                 # if not, return True (we are not interested in finding strict dominance)
     
-    def __compute_error(self,x,b):                                                  # helper function for jSolve and gsSolve to compute error
-            n = self.__size
-            ans=[]
-            for i in range(n):
-                cur=0
-                for j in range(n):
-                    cur += self.__data[i][j]*x[j]
-                ans.append(cur-b[i])
-            return np.linalg.norm(ans,ord=2)
+    def __compute_error(self,x,b):                                                  # helper function for jSolve and gsSolve to compute error ||Ax^(k) − b||_2 
+        n = self.__size
+        ans=[]
+        for i in range(n):
+            cur=0
+            for j in range(n):
+                cur += self.__data[i][j]*x[j]
+            ans.append(cur-b[i])
+        return np.linalg.norm(ans,ord=2)
         
     def jSolve(self, b,m):
         if not self.isDRDominant(strict=True):                                      # ***Given in slides that it has to be strictly diagonally dominant for jSolve to work***

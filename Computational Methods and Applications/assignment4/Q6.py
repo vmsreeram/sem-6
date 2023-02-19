@@ -204,25 +204,20 @@ class Polynomial:
         plt.xlabel(r'$x$')
         plt.ylabel(r'$\tilde{f}(x)$')
         plt.show()
-        
-        
-        
-# p = Polynomial([])
-# p.fitViaLagrangePoly([(1,-4), (0,1), (-1, 4), (2, 4),  (3,1)])
-            
-# p1 = Polynomial([1,2])
-# p2 = Polynomial([1, 1, 1,5.2,25,.346,3])
-# p3 = p2 * p1
-# print(p3)
-# p = Polynomial([1, 2, 3])
-p = Polynomial([0,2,-1.2,0])
-p.show(-2, 2)
+    
+    def derivative(self):
+        lst = []
+        for i,val in enumerate(self.__data[1:]):
+            lst.append((i+1)*val)
+        return Polynomial(lst)
+    
+    def area(self,start,stop):
+        lst = [0]
+        for i,val in enumerate(self.__data):
+            lst.append(val/(i+1))
+        ans = abs(Polynomial(lst)[stop]-Polynomial(lst)[start])
+        return 'Area in the interval ['+str(start)+', '+str(stop)+'] is: '+str(ans)
 
-# p = Polynomial([])
-# p.fitViaLagrangePoly([(1,4), (0,1), (-1, 0), (2, 15), (3,12)])
-# p.fitViaMatrixMethod([(1,4), (0,1), (-1, 0), (2, 15), (3,12)])
-
-
-# p = Polynomial([])
-# p.fitViaLagrangePoly([(1,-4), (0,1), (-1, 4), (2, 4),  (3,1)])
-# p.fitViaMatrixMethod([(1,-4), (0,1), (-1, 4), (2, 4),  (3,1)])
+p = Polynomial([0,0,0,1])
+print(p.derivative())
+print(p.area(2,3))

@@ -153,7 +153,7 @@ class SquareMatrixFloat:
         
         return errors,x_curr
 
-def visualisejSgsS(n:int,m:int):                                            # n: dimension on SquareMatrixFloat; m: number of iterations
+def visualisejSgsS(n:int,m:int):                                            # n: dimension of SquareMatrixFloat; m: number of iterations
     # print("findS...")
     s = SquareMatrixFloat(n)
     s.sampleSymmetric()
@@ -164,12 +164,12 @@ def visualisejSgsS(n:int,m:int):                                            # n:
     jSerr,_ = s.jSolve(b,m)                                                 # call the implemented functions and plot the output
     gsSerr,_ = s.gsSolve(b,m)
     plt.plot([i+1 for i in range(m)],jSerr,label='Jacobi error')
-    plt.plot([i+1 for i in range(m)],gsSerr,label='Gauss-Siedel error')
-    plt.title(r'Errors $(\epsilon)$ in Jacobi and Gauss-Siedel methods')
+    plt.plot([i+1 for i in range(m)],gsSerr,label='Gauss-Seidel error')
+    plt.title(r'Errors $(\epsilon)$ in Jacobi and Gauss-Seidel methods')
     plt.xlabel('Number of iterations')
     plt.ylabel(r'$\epsilon$')
     plt.legend()
     plt.grid()
     plt.show()
     
-visualisejSgsS(n=10,m=15)   # n: dimension on SquareMatrixFloat; m: number of iterations
+visualisejSgsS(n=10,m=20)   # n: dimension of SquareMatrixFloat; m: number of iterations
