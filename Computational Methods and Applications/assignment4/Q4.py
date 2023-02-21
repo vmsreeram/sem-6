@@ -23,9 +23,10 @@ area_values = [trapezoidal_rule(f, 1, 3, M) for M in M_values]
 
 # Plot the areas
 plt.plot(M_values, area_values)
-plt.plot([1, 200], [exact_area, exact_area], linestyle='--', color='red', label='Exact Area')
+plt.axhline(exact_area, linestyle='--', color='red', label='Exact Area')
 plt.legend()
 plt.title("Area Under the Curve " + r"$y(x) = 2x \cdot e^{x^2}$" + "in [1,3] using Trapezoidal Rule")
 plt.xlabel("Number of Intervals (M)")
 plt.ylabel("Area")
+plt.grid()
 plt.show()
