@@ -153,11 +153,11 @@ class Polynomial:
         
         matmethod_poly=Polynomial(list(linalg.solve(A,b)))      # linalg.solve solves and returns coeff as iterable, Solution to the system a x = b. Returned shape is identical to b.
         
-        matmethod_poly.__round_vals()                           # rounding so that it does not look ugly while printing in plot
         
         if dontPlot:
             return matmethod_poly
         
+        matmethod_poly.__round_vals()                           # rounding so that it does not look ugly while printing in plot
         
         # plotting ...
         # print(matmethod_poly_coef)
@@ -223,7 +223,7 @@ class Polynomial:
         lst = [0]
         for i,val in enumerate(self.__data):
             lst.append(val/(i+1))
-        ans = abs(Polynomial(lst)[stop]-Polynomial(lst)[start])
+        ans = (Polynomial(lst)[stop]-Polynomial(lst)[start])
         if retValOnly:
             return ans
         return 'Area in the interval ['+str(start)+', '+str(stop)+'] is: '+str(ans)
@@ -231,14 +231,22 @@ class Polynomial:
 def fn(x):
     return np.exp(x) * np.sin(x)
 
+def I_fn(x):
+    return np.exp(x) * (np.sin(x) - np.cos(x)) / 2
+
 points = []
-NUM_POINTS = 10     #error = 4.227752883889657e-07
-for x in [(i+1)/(NUM_POINTS*2) for i in range(NUM_POINTS)]:
+NUM_POINTS = 10     #error = 8.523654004832792e-12
+for x in np.linspace(0,1,NUM_POINTS):
     points.append((x,fn(x)))
 # print(points)
 
 approx = Polynomial([]).fitViaMatrixMethod(points,dontPlot=True)
 # print("approx =",approx)
-# approx.show(0,0.5)
+# approx.show(0,5)
+print(approx)
 print(approx.area(0,0.5))
-print("error =",abs(0.1717750233147229-approx.area(0,0.5,retValOnly=True)))
+
+pythonArea = I_fn(0.5)-I_fn(0)
+# 0.1717750233147228769
+print("pythonArea =",(pythonArea))
+print("error =",abs(pythonArea - approx.area(0,0.5,retValOnly=True)))

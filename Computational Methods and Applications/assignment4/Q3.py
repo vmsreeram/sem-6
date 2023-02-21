@@ -47,7 +47,7 @@ def compute_theoreticalErrors(h):
     return max_deltaPlusErr_th,max_deltaCErr_th
 
 # Generating data for plotting
-hs = [i*0.01 for i in range(1,100)]
+hs = [i*0.01 for i in range(1,101)]
 maxErr_delta_plus,maxErr_delta_c=[],[]
 for h in hs:
     aa, bb = compute_maxAbsErrs(h)
@@ -64,7 +64,7 @@ for h in hs:
 plt.plot(hs, maxErr_delta_plus, label="maximum absolute error in forward difference")
 plt.plot(hs, maxErr_delta_c, label="maximum absolute error in central difference")
 plt.plot(hs, theoErr_delta_plus, label="theoretical maximum absolute error in forward difference")
-plt.plot(hs, theoErr_delta_c, label="theoretical maximum absolute error in central difference")
+# plt.plot(hs, theoErr_delta_c, label="theoretical maximum absolute error in central difference")
 plt.legend()
 plt.title("maximum absolute error of approximations for " +r"$sin(x^2)$")
 plt.xlabel("h")
