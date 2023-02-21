@@ -197,10 +197,10 @@ class Polynomial:
                     nr *= Polynomial([-xpts[j],1])
                     dr *= xpts[i]-xpts[j]
             lagrange_poly += (ypts[i]/dr)*nr
-        lagrange_poly.__round_vals()
         
         if dontPlot:
             return lagrange_poly
+        lagrange_poly.__round_vals()
         
         # plotting ...
         plt.scatter(xpts,ypts,c='r')
