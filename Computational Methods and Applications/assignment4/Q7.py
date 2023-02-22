@@ -154,7 +154,7 @@ class Polynomial:
         matmethod_poly=Polynomial(list(linalg.solve(A,b)))      # linalg.solve solves and returns coeff as iterable, Solution to the system a x = b. Returned shape is identical to b.
         
         
-        if dontPlot:
+        if dontPlot:            # we don't want the fitting function called internally to display plot, so to return just ans.
             return matmethod_poly
         
         matmethod_poly.__round_vals()                           # rounding so that it does not look ugly while printing in plot
@@ -198,7 +198,7 @@ class Polynomial:
                     dr *= xpts[i]-xpts[j]
             lagrange_poly += (ypts[i]/dr)*nr
         
-        if dontPlot:
+        if dontPlot:            # we don't want the fitting function called internally to display plot, so to return just ans.
             return lagrange_poly
         lagrange_poly.__round_vals()
         
@@ -224,26 +224,25 @@ class Polynomial:
         for i,val in enumerate(self.__data):
             lst.append(val/(i+1))
         ans = (Polynomial(lst)[stop]-Polynomial(lst)[start])
-        if retValOnly:
+        if retValOnly:            # we don't want the area computing function called internally to print string, so to return just ans.
             return ans
         return 'Area in the interval ['+str(start)+', '+str(stop)+'] is: '+str(ans)
 
 def fn(x):
     return np.exp(x) * np.sin(x)
 
-def I_fn(x):
+def I_fn(x):                                                        # to compute exact area
     return np.exp(x) * (np.sin(x) - np.cos(x)) / 2
 
 points = []
 NUM_POINTS = 10     #error = 8.523654004832792e-12
-for x in np.linspace(0,1,NUM_POINTS):
+for x in np.linspace(0,1,NUM_POINTS):                               # we take NUM_POINTS points between 0 and 1 and append (it, f(it)) to points list
     points.append((x,fn(x)))
 # print(points)
 
-approx = Polynomial([]).fitViaMatrixMethod(points,dontPlot=True)
+approx = Polynomial([]).fitViaMatrixMethod(points,dontPlot=True)    # we fit the points list via matrix method
 # print("approx =",approx)
-# approx.show(0,5)
-print(approx)
+
 print(approx.area(0,0.5))
 
 pythonArea = I_fn(0.5)-I_fn(0)
