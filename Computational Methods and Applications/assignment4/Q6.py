@@ -207,15 +207,15 @@ class Polynomial:
     
     def derivative(self):
         lst = []
-        for i,val in enumerate(self.__data[1:]):
-            lst.append((i+1)*val)
+        for i,val in enumerate(self.__data[1:]):            # we ignore self.__data[0] because d/dx k = 0
+            lst.append((i+1)*val)                           # using the fact that d/dx (k*x^n) = k*n*x^(n-1)
         return Polynomial(lst)
     
     def area(self,start,stop):
-        lst = [0]
+        lst = [0]                                               # we take constant of integration to be 0. Does not matter as it gets subtracted out
         for i,val in enumerate(self.__data):
-            lst.append(val/(i+1))
-        ans = abs(Polynomial(lst)[stop]-Polynomial(lst)[start])
+            lst.append(val/(i+1))                               # using the fact that ∫(k*x^n) = (k/n+1)*x^(n+1)
+        ans = abs(Polynomial(lst)[stop]-Polynomial(lst)[start]) # since area is always non-negative, we compute abs
         return 'Area in the interval ['+str(start)+', '+str(stop)+'] is: '+str(ans)
 
 p = Polynomial([0,0,0,1])
