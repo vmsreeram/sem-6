@@ -1,0 +1,14 @@
+create OR REPLACE function TrainsBtwStns (
+   src_id VARCHAR(6),
+   dst_id VARCHAR(6),
+   day INT              -- 0:Mon ... 6:Sun
+) 
+returns table (train_no INT, src_stn_id varchar(6), dest_stn_id varchar(6), days_of_wk int, src_arr_time time, src_dep_time time, dest_arr_time time, dest_dep_time time)
+language plpgsql
+as $$
+-- declare 
+-- variable declaration
+begin
+RETURN QUERY
+SELECT s1.train_no,s1.stn_id,s2.stn_id,s1.days_of_wk,s1.arr_time,s1.dep_time,s2.arr_time,s2.dep_time FROM Schedule as s1 cross join Schedule as s2 where ((s1.days_of_wk&(1<<day))>0) and s1.train_no=s2.train_no and s1.stn_id=src_id and s2.stn_id=dst_id and s1.dep_time<s2.arr_time;
+end; $$;

@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "exptree.h": "c",
+        "symtab.h": "c"
+    }
+}
