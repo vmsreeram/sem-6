@@ -244,53 +244,52 @@ class Polynomial:
 def FindRoots_Aberth(roots,maxIter=100):
     EPS = 0.001
     poly = Polynomial([1])
-    for i in roots:
-        poly = poly * Polynomial([-i, 1])
+    N = len(X)
+    for root in roots:
+        poly = poly * Polynomial([-root, 1])
 
     poly_deriv = poly.derivative()
 
     X = []
     for i in range(len(roots)):
-        X.append(random.random() * max(roots))
+        X.append(random.random() * np.average(roots))
 
-    roots.sort()
+    roots.sort()		#sorting so as to compare with newX
     
-    # starting the aberth method
+    # starting the aberth method ~ https://en.wikipedia.org/wiki/Aberth_method
     for iter in range(maxIter):
         newX = []
-        X.sort()
-        done = True
+        X.sort()		#sorting so as to compare with roots
+        flag = True
 
-        for i in range(len(X)):
+	# checking whether the found roots are EPS-close to acutal roots or not
+        for i in range(N):
             if(abs(X[i] - roots[i]) > EPS):
-                #if even one root is not with EPS, then the loop needs to go on
-                done = False
+                flag = False
                 break
-
-        if(done == True):
+	
+	# the found roots are EPS-close to acutal roots - so we print and return
+        if(flag == True):
             print(poly)
             print("Roots:",X,"\n")
             return
 
-        for i in range(len(X)):
-            tsum = 0
-            for j in range(len(X)):
-                if(i == j or X[i] == X[j]):
+        for i in range(N):
+            dsum = 0			#denominator sum
+            for j in range(N):
+                if(i != j and X[i] != X[j]):
+                    dsum += 1/(X[i] - X[j])
+                else:
                     continue
-                tsum += 1/(X[i] - X[j])
 
             # if the derivative is zero, we need to change it to make sure division by zero does not happen
-            thisder = 0
-            if(poly_deriv[X[i]] == 0):
-                thisder = EPS
-            else:
-                thisder = poly_deriv[X[i]]
+            thisder = poly_deriv[X[i]] if(poly_deriv[X[i]] != 0) else 0
 
-            temp = poly[X[i]] / thisder
-            temp1 = 1 - temp * tsum
+            numr = poly[X[i]] / thisder
+            denr = 1 - temp * dsum
 
             #add the new value obtained
-            newX.append(X[i] - temp/temp1)
+            newX.append(X[i] - numr/denr)
 
         #update current roots to new roots 
         X.clear()
@@ -303,5 +302,5 @@ def FindRoots_Aberth(roots,maxIter=100):
 
 
 
-FindRoots_Aberth([3,4])
-FindRoots_Aberth([1,2, 3,4])
+FindRoots_Aberth([3,4],maxiter=20)
+FindRoots_Aberth([1,2, 3,4],maxiter=20)
