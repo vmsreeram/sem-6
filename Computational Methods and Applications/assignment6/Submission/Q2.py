@@ -1,7 +1,7 @@
-import matplotlib.pyplot as plt
+from math import exp
 import numpy as np
-from numpy import float64
-from numpy import linalg
+import matplotlib.pyplot as plt
+from numpy import float64, linalg, linspace
 
 class Polynomial:
     def __init__(self,data=None):
@@ -85,7 +85,7 @@ class Polynomial:
             if self.__data[0]!=0:
                 if(self.__data[0]<0):
                     s+=r'$-$'
-                s+=str(abs(self.__data[0]))
+                s+=str(abs(round(self.__data[0],3)))
         if self.__n>1:
             if self.__data[1]!=0:
                 if(self.__data[1]<0):
@@ -93,7 +93,7 @@ class Polynomial:
                 elif len(s)!=initLen:                       # no need of + if nothing printed till now, such as f(x)= +4x
                     s+=r'$+$'
                 if abs(self.__data[1])!=1:
-                    s+=str(abs(self.__data[1]))
+                    s+=str(abs(round(self.__data[1],3)))
                 s+=r'$x$'
         if self.__n>2:
             for i in range(2,self.__n):
@@ -103,10 +103,11 @@ class Polynomial:
                     elif len(s)!=initLen:
                         s+=r'$+$'
                     if abs(self.__data[i])!=1:
-                        s+=str(abs(self.__data[i]))
+                        s+=str(abs(round(self.__data[i],3)))
                     s+=r'$x^{}$'.format(i)
         if len(s)==initLen:                                 # if empty polynomial is passed, 0 is assumed.
             s+=r'$0$'
+        s += '(rounded)'
         return s
     
     def __round_vals(self):                                 # helper function to round to 4 dec places, to handle floating point precision mistakes
@@ -126,8 +127,8 @@ class Polynomial:
         plt.xlabel(r'$x$')
         plt.ylabel(r'$P(x)$')
         
-        plt.grid()
-        plt.show()
+        # plt.grid()
+        # plt.show()
     
     
     def fitViaMatrixMethod(self, points, dontPlot=False):
@@ -227,32 +228,89 @@ class Polynomial:
         if retValOnly:            # we don't want the area computing function called internally to print string, so to return just ans.
             return ans
         return 'Area in the interval ['+str(start)+', '+str(stop)+'] is: '+str(ans)
-
-def fn(x):
-    return np.exp(x) * np.sin(x)
-
-def I_fn(x):                                                        # to compute exact area
-    return np.exp(x) * (np.sin(x) - np.cos(x)) / 2
-
-points = []
-NUM_POINTS = 10     #error = 8.523654004832792e-12
-for x in np.linspace(0,1,NUM_POINTS):                               # we take NUM_POINTS points between 0 and 1 and append (it, f(it)) to points list
-    points.append((x,fn(x)))
-# print(points)
-
-approx = Polynomial([]).fitViaMatrixMethod(points,dontPlot=True)    # we fit the points list via matrix method
-# print("approx =",approx)
-
-print(approx.area(0,0.5))
-
-pythonArea = I_fn(0.5)-I_fn(0)
-# 0.1717750233147228769
-print("pythonArea =",(pythonArea))
-print("error =",abs(pythonArea - approx.area(0,0.5,retValOnly=True)))
-
-"""
-Explanation given in class
-Use this
-    ||x_j - x* || ≤ eps === ||x_(j+1) - x_(j) || ≤ eps (check)
     
-"""
+    def __pow__(self, n):
+        if n < 0 or type(n)!=int:
+            raise Exception("Power requires to be a non-negative integer")
+
+        ans = Polynomial([1])
+        for _ in range(n):
+            ans = ans * self
+
+        return ans
+def bestFitPoly(points, n):
+    # n<0 is invalid as we want to return Polynomial
+    if n < 0 or type(n) is not int:
+        raise Exception('Degree of poly should be non-negative integer')
+
+    # solving in the form Sa = b
+    # Creating b
+    b = []
+    for j in range(0, n+1):
+        b.append(sum([points[i][1]*(points[i][0]**j) for i in range(len(points))]))
+
+    # Creating S
+    S = []
+    for j in range(0, n+1):
+        eachrow = []
+        for k in range(0, n+1):
+            eachrow.append(sum([points[i][0]**(j+k) for i in range(len(points))]))
+        S.append(eachrow)
+
+    # Solving the linear sys Sa = b for a
+    a = list(linalg.solve(S, b))
+    bestPoly = Polynomial(a)
+    
+    # Plotting..
+    # plt.scatter([points[i][0] for i in range(len(points))], [points[i][1] for i in range(len(points))],c='g',label='given points')
+    # lbound = min([points[i][0] for i in range(len(points))])
+    # ubound = max([points[i][0] for i in range(len(points))])
+    # bestPoly.show(lbound,ubound)
+    # plt.grid()
+    # plt.legend()
+    # plt.show()
+    return bestPoly
+
+def solveODE_bkwEuler(ode,t0, T,x_t0, Nh):  
+    # interval is t0 to T; x_t0 is x at t0; Nh is num pts, so that h is discretization step size. 
+    
+    h = (T-t0)/Nh
+    print("\nh=",h)
+    
+    points = []     # points in [t0, T] with step size h
+    cur = t0
+    while(cur<T):
+        points.append(cur)
+        cur+=h
+    points.append(T)
+    
+    # applying the backward euler method to evaluate points
+    X = [x_t0]
+    polypts = []
+    for i in range(len(points)-1):
+        X.append(ode(points[i],X[i],h))
+        polypts.append([points[i],X[i]])
+    
+    # printing and plotting
+    poly = bestFitPoly(polypts,len(polypts)-1)
+    print(poly)
+    plt.plot(points, X, label=f"h = {h}")
+    
+def odeFn(t,x,h):
+    return x/(1+2*h)
+
+plt.title(r'bkwd euler method $x\'(t) = -2x(t)$')
+plt.xlabel(r'$t$')
+plt.ylabel(r'$x(t)$')
+
+def actualFn(x):
+    return 5*exp(-2*x)
+plt.plot(linspace(0,10,100),[actualFn(x) for x in linspace(0,10,100)],label='actual')
+
+for i in [0.1, 0.5, 1, 2, 3]:
+    nh = 10/i
+    solveODE_bkwEuler(odeFn,0,10,5,nh)
+plt.legend()
+plt.grid()
+    
+plt.show()

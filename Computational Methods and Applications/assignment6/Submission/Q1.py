@@ -1,6 +1,4 @@
-import copy
 from math import exp
-import random
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import float64, linalg, linspace
@@ -240,67 +238,79 @@ class Polynomial:
             ans = ans * self
 
         return ans
+def bestFitPoly(points, n):
+    # n<0 is invalid as we want to return Polynomial
+    if n < 0 or type(n) is not int:
+        raise Exception('Degree of poly should be non-negative integer')
+
+    # solving in the form Sa = b
+    # Creating b
+    b = []
+    for j in range(0, n+1):
+        b.append(sum([points[i][1]*(points[i][0]**j) for i in range(len(points))]))
+
+    # Creating S
+    S = []
+    for j in range(0, n+1):
+        eachrow = []
+        for k in range(0, n+1):
+            eachrow.append(sum([points[i][0]**(j+k) for i in range(len(points))]))
+        S.append(eachrow)
+
+    # Solving the linear sys Sa = b for a
+    a = list(linalg.solve(S, b))
+    bestPoly = Polynomial(a)
     
-def FindRoots_Aberth(roots,maxIter=100):
-    EPS = 0.001
-    poly = Polynomial([1])
-    N = len(X)
-    for root in roots:
-        poly = poly * Polynomial([-root, 1])
+    # Plotting..
+    # plt.scatter([points[i][0] for i in range(len(points))], [points[i][1] for i in range(len(points))],c='g',label='given points')
+    # lbound = min([points[i][0] for i in range(len(points))])
+    # ubound = max([points[i][0] for i in range(len(points))])
+    # bestPoly.show(lbound,ubound)
+    # plt.grid()
+    # plt.legend()
+    # plt.show()
+    return bestPoly
 
-    poly_deriv = poly.derivative()
-
-    X = []
-    for i in range(len(roots)):
-        X.append(random.random() * np.average(roots))
-
-    roots.sort()		#sorting so as to compare with newX
+def solveODE_fwdEuler(ode,t0, T,x_t0, Nh):  
+    # interval is t0 to T; x_t0 is x at t0; Nh is num pts, so that h is discretization step size. 
     
-    # starting the aberth method ~ https://en.wikipedia.org/wiki/Aberth_method
-    for iter in range(maxIter):
-        newX = []
-        X.sort()		#sorting so as to compare with roots
-        flag = True
-
-	# checking whether the found roots are EPS-close to acutal roots or not
-        for i in range(N):
-            if(abs(X[i] - roots[i]) > EPS):
-                flag = False
-                break
-	
-	# the found roots are EPS-close to acutal roots - so we print and return
-        if(flag == True):
-            print(poly)
-            print("Roots:",X,"\n")
-            return
-
-        for i in range(N):
-            dsum = 0			#denominator sum
-            for j in range(N):
-                if(i != j and X[i] != X[j]):
-                    dsum += 1/(X[i] - X[j])
-                else:
-                    continue
-
-            # if the derivative is zero, we need to change it to make sure division by zero does not happen
-            thisder = poly_deriv[X[i]] if(poly_deriv[X[i]] != 0) else 0
-
-            numr = poly[X[i]] / thisder
-            denr = 1 - temp * dsum
-
-            #add the new value obtained
-            newX.append(X[i] - numr/denr)
-
-        #update current roots to new roots 
-        X.clear()
-        for i in newX:
-            X.append(i)
+    h = (T-t0)/Nh
+    print("\nh=",h)
     
-    print("More iterations needed")
+    points = []     # points in [t0, T] with step size h
+    cur = t0
+    while(cur<T):
+        points.append(cur)
+        cur+=h
+    points.append(T)
+    
+    # applying the forward euler method to evaluate points
+    X = [x_t0]
+    polypts = []
+    for i in range(len(points)-1):
+        X.append(X[i]+h*ode(points[i],X[i]))
+        polypts.append([points[i],X[i]])
+    
+    # printing and plotting
+    poly = bestFitPoly(polypts,len(polypts)-1)
     print(poly)
-    print("Roots:",X,"\n")
+    plt.plot(points, X, label=f"h = {h}")
+    
+def odeFn(t,x):
+    return -2*x
 
+plt.title(r'fwd euler method $x\'(t) = -2x(t)$')
+plt.xlabel(r'$t$')
+plt.ylabel(r'$x(t)$')
+plt.ylim(-5,5)
+def actualFn(x):
+    return 5*exp(-2*x)
+plt.plot(linspace(0,10,100),[actualFn(x) for x in linspace(0,10,100)],label='actual')
 
-
-FindRoots_Aberth([3,4],maxiter=20)
-FindRoots_Aberth([1,2, 3,4],maxiter=20)
+for i in [0.1, 0.5, 1, 2, 3]:
+    nh = 10/i
+    solveODE_fwdEuler(odeFn,0,10,5,nh)
+plt.legend()
+plt.grid()
+    
+plt.show()
